@@ -1,2 +1,2 @@
-# OJ-and-other-practice
-some solutions to Peking University Online Judge and some other practice programs involing algorithms and data structures
+# POJ
+some solutions to Peking University Online Judge and some other practice programs involving algorithms and data structures
