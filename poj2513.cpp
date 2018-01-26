@@ -1,106 +1,137 @@
 #include <iostream>
-#include <memory.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+#include <cstring>
+#include <algorithm>
+#include <vector>
+
 using namespace std;
-int colors = 0;
-const int large = 500000;
-int degree[large + 1] = {0};
-int ancestor[large + 1];
 
+const int MAX_N = 250000;
 
-class Trie_Tree {
-    public:
-        int id;
-        bool flag;
-        Trie_Tree *next[27];
-
-        Trie_Tree() {
-            id = 0;
-            flag = false;
-            memset(next, 0, sizeof(next));
+typedef struct TrieNode {
+    
+    int id;
+    TrieNode *next[26];
+    
+    TrieNode() {
+        id = 0;
+        for(int i = 0; i < 26; i++) {
+            next[i] = NULL;
         }
-}root;
+    }
+    
+} TrieNode;
 
-int find_p(int x) {
-    if(ancestor[x] == x)
-        return x;
-    return ancestor[x] = find_p(ancestor[x]);
-}
 
-void union_set(int x, int y) {
-    int px = find_p(x);
-    int py = find_p(y);
-    ancestor[px] = py;
-}
+int degree[MAX_N * 2 + 3], u[MAX_N * 2 + 3], lastId;
 
-int hash_tree(char s[]) {
-    Trie_Tree *p = &root;
-    int len = 0;
-    while(s[len] != '\0') {
-        int index = s[len] - 'a';
-        len++;
-        if(p->next[index] == 0) {
-            p->next[index] = new Trie_Tree();
+TrieNode *root;
+
+
+int insert(char *word) {
+    
+    int len = (int) strlen(word);
+    TrieNode *p = root;
+    
+    for(int i = 0; i < len; i++) {
+        
+        char ch = word[i];
+        
+        if(p->next[ch - 'a'] == NULL) {
+            p->next[ch - 'a'] = new TrieNode();
         }
-        p = p->next[index];
+        
+        p = p->next[ch - 'a'];
+        
     }
-    if(p->flag == true) //The color word exists
-        return p->id;
-    else { //New color. Allocate an id and flag
-        p->flag = true;
-        p->id = ++colors;
-        return p->id;
+    
+    if(p->id == 0) {
+        p->id = ++lastId;
     }
+    
+    return p->id;
+    
 }
 
-void initSet() {
-    for(int i = 1; i <= large + 1; i++)
-        ancestor[i] = i;
+int find(int x) {
+    
+    while(u[x] != x) {
+        u[x] = u[u[x]];
+        x = u[x];
+    }
+    
+    return x;
+    
 }
 
-int main()
-{
-    char a[20], b[20];
-    int oddNum;
-    int allAncestor;
-    bool isPoss;
+void unionRoots(int x, int y) {
+    
+    int rx = find(x);
+    int ry = find(y);
+    
+    u[rx] = ry;
+    
+}
 
-    initSet();
-    while(true) {
-        cin >> a >> b;
-        if(strcmp(a, "0") == 0)
-            break;
-        int cA = hash_tree(a);
-        int cB = hash_tree(b);
-        degree[cA]++;
-        degree[cB]++;
-        union_set(cA, cB);
+void init() {
+    
+    root = new TrieNode();
+    
+    lastId = 0;
+    
+    for(int i = 1; i <= MAX_N * 2; i++) {
+        u[i] = i;
     }
+    
+    memset(degree, 0, sizeof(degree));
+    
+}
 
-    oddNum = 0;
-    allAncestor = find_p(1);
-    isPoss = true;
-    for(int i = 1; i <= colors; i++) {
+int main() {
+    
+    char w1[12], w2[12];
+    
+    int id1, id2;
+    
+    int uNum = 0, oddDegree = 0;
+    
+    
+    init();
+    
+    while(scanf("%s %s", w1, w2) != EOF) {
+        
+        id1 = insert(w1);
+        id2 = insert(w2);
+        
+        degree[id1]++;
+        degree[id2]++;
+        
+        unionRoots(id1, id2);
+        
+    }
+    
+    for(int i = 1; i <= lastId; i++) {
+        
         if(degree[i] % 2 == 1) {
-            if(++oddNum > 2) {
-                isPoss = false;
-                break;
-            }
+            oddDegree++;
         }
-        if(find_p(i) != allAncestor) {
-            isPoss = false;
-            break;
+        
+        if(find(i) == i) {
+            uNum++;
         }
+        
     }
-
-    if(oddNum == 1)
-        isPoss = false;
-
-    if(isPoss == true)
-        cout << "Possible" << endl;
-    else
-        cout << "Impossible" << endl;
+    
+    if(uNum <= 1 && (oddDegree == 0 || oddDegree == 2)) {
+        printf("Possible");
+    }
+    else {
+        printf("Impossible");
+    }
+    
     return 0;
+    
 }
-//No. 61
-
-
