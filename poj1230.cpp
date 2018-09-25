@@ -20,7 +20,7 @@ typedef pair<int, int> P;
 const int MAX_N = 100 + 1;
 int dp[MAX_N][MAX_N];
 int n, k, t, x, y, x_1, y_1, x_2, y_2, leftEnd, rightEnd, res;
-priority_queue<P, vector<P>, less<P>> pq;
+priority_queue<P, vector<P>, less<P> > pq;
 
 int main() {
     scanf("%d", &t);
@@ -28,6 +28,7 @@ int main() {
         x = 0;
         y = 0;
         res = 0;
+        memset(dp, 0, sizeof(int) * MAX_N * MAX_N);
         scanf("%d%d", &n, &k);
         for(int i = 1; i <= n; i++) {
             scanf("%d%d%d%d", &y_1, &x_1, &y_2, &x_2);
@@ -43,21 +44,18 @@ int main() {
             while(!pq.empty()) {
                 pq.pop();
             }
-            int count = 0;
             for(int i = 0; i <= x; i++) {
                 if(dp[i][j]) {
                     pq.push(P(dp[i][j], i));
-                    count++;
                 }
             }
-            while(count > k) {
+            while(pq.size() > k) {
                 P p = pq.top();
                 pq.pop();
                 int row = p.second;
                 for(int len = p.first, col = j; len > 0; len--, col++) {
                     dp[row][col] = 0;
                 }
-                count--;
                 res++;
             }
         }
