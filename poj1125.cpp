@@ -24,11 +24,13 @@ int person, longestTime;
 
 int main() {
     while(scanf("%d", &n) != EOF && n) {
-        for(int i = 0; i < MAX_N; i++) {
-            for(int j = 0; j < MAX_N; j++) {
+        for(int i = 1; i <= n; i++) {
+            for(int j = 1; j <= n; j++) {
                 dp[0][i][j] = MAX_INT;
                 dp[1][i][j] = MAX_INT;
             }
+            dp[0][i][i] = 0;
+            dp[1][i][i] = 0;
         }
         for(int i = 1; i <= n; i++) {
             scanf("%d", &contacts);
@@ -45,9 +47,26 @@ int main() {
                 }
             }
         }
-        longestTime = -1;
-        for(int i = 1; i <= n; i++) {
-            
+        longestTime = MAX_INT;
+        for(int from = 1, k = n % 2; from <= n; from++) {
+            int temp = -1;
+            for(int to = 1; to <= n; to++) {
+                if(dp[k][from][to] == MAX_INT) {
+                    temp = -1;
+                    break;
+                }
+                temp = max(temp, dp[k][from][to]);
+            }
+            if(-1 < temp && temp < longestTime) {
+                person = from;
+                longestTime = temp;
+            }
+        }
+        if(longestTime == MAX_INT) {
+            printf("disjoint\n");
+        }
+        else {
+            printf("%d %d\n", person, longestTime);
         }
     }
     return 0;
