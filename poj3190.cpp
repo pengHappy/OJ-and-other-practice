@@ -17,10 +17,10 @@
 using namespace std;
 
 const int MAX_N = 50000 + 1;
-const int MAX_INT = 1e9;
+//const int MAX_INT = 1e9;
 
 typedef struct Node {
-    int s, e, id, stall;
+    int s, e, id;
 } Node;
 
 bool comp(Node a, Node b) {
@@ -30,21 +30,41 @@ bool comp(Node a, Node b) {
     return a.e < b.e;
 }
 
+typedef pair<int, int> P;
+
 vector<Node> node(MAX_N);
 int n, c, res[MAX_N];
+priority_queue<P, vector<P>, greater<P> > pq;
 
 int main() {
-    scanf("%d", &n);
-    for(int i = 0; i < n; i++) {
-        cin >> node[i].s >> node[i].e;
-        node[i].id = i;
-        node[i].stall = -1;
+    while(scanf("%d", &n) != EOF) {
+        for(int i = 1; i <= n; i++) {
+            cin >> node[i].s >> node[i].e;
+            node[i].id = i;
+        }
+        sort(node.begin() + 1, node.begin() + n + 1, comp);
+        
+        while(!pq.empty()) {
+            pq.pop();
+        }
+        pq.push(P(node[1].e, 1));
+        res[ node[1].id ] = 1;
+        
+        for(int i = 2; i <= n; i++) {
+            if(pq.top().first < node[i].s) {
+                res[ node[i].id ] = pq.top().second;
+                pq.pop();
+                pq.push(P(node[i].e, res[ node[i].id ]));
+            }
+            else {
+                res[ node[i].id ] = (int) pq.size() + 1;
+                pq.push(P(node[i].e, res[ node[i].id ]));
+            }
+        }
+        printf("%d\n", (int) pq.size());
+        for(int i = 1; i <= n; i++) {
+            printf("%d\n", res[i]);
+        }
     }
-    sort(node.begin(), node.begin() + n, comp);
-    while(c < n) {
-        c++;
-    }
-    
-    
     return 0;
 }
