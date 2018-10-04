@@ -24,47 +24,43 @@ typedef struct Node {
 } Node;
 
 bool comp(Node a, Node b) {
-    if(a.e == b.e) {
-        return a.s < b.s;
+    if(a.s == b.s) {
+        return a.e < b.e;
     }
-    return a.e < b.e;
+    return a.s < b.s;
 }
 
 typedef pair<int, int> P;
 
-vector<Node> node(MAX_N);
+Node node[MAX_N];
 int n, c, res[MAX_N];
 priority_queue<P, vector<P>, greater<P> > pq;
 
 int main() {
-    while(scanf("%d", &n) != EOF) {
-        for(int i = 1; i <= n; i++) {
-            cin >> node[i].s >> node[i].e;
-            node[i].id = i;
-        }
-        sort(node.begin() + 1, node.begin() + n + 1, comp);
-        
-        while(!pq.empty()) {
+    scanf("%d", &n);
+    for(int i = 1; i <= n; i++) {
+        scanf("%d%d", &node[i].s, &node[i].e);
+        node[i].id = i;
+    }
+    sort(node + 1, node + n + 1, comp);
+    
+    pq.push(P(node[1].e, 1));
+    res[ node[1].id ] = 1;
+    
+    for(int i = 2; i <= n; i++) {
+        if(pq.top().first < node[i].s) {
+            res[ node[i].id ] = pq.top().second;
             pq.pop();
+            pq.push(P(node[i].e, res[ node[i].id ]));
         }
-        pq.push(P(node[1].e, 1));
-        res[ node[1].id ] = 1;
-        
-        for(int i = 2; i <= n; i++) {
-            if(pq.top().first < node[i].s) {
-                res[ node[i].id ] = pq.top().second;
-                pq.pop();
-                pq.push(P(node[i].e, res[ node[i].id ]));
-            }
-            else {
-                res[ node[i].id ] = (int) pq.size() + 1;
-                pq.push(P(node[i].e, res[ node[i].id ]));
-            }
+        else {
+            res[ node[i].id ] = (int) pq.size() + 1;
+            pq.push(P(node[i].e, res[ node[i].id ]));
         }
-        printf("%d\n", (int) pq.size());
-        for(int i = 1; i <= n; i++) {
-            printf("%d\n", res[i]);
-        }
+    }
+    printf("%d\n", (int) pq.size());
+    for(int i = 1; i <= n; i++) {
+        printf("%d\n", res[i]);
     }
     return 0;
 }
